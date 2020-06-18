@@ -1,4 +1,5 @@
-This material was originally called terraform-workshop and built by nubthedestroyer (Michael Lucas).
+# Terraform Fundamentals
+This material was originally called terraform-workshop and built by nubbthedestroyer (Michael Lucas).
 
 Michael gave it to us when he stopped teaching, and then it was modified by Patrick Force.
 
