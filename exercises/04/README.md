@@ -33,8 +33,8 @@ You should see something like this below:
 # aws_s3_bucket_object.user_student_alias_object: 
 resource "aws_s3_bucket_object" "user_student_alias_object" {
     acl           = "private"
-    bucket        = "dws-di-chucky"
-    content       = "This bucket is reserved for chucky"
+    bucket        = "devint-..."
+    content       = "This bucket is reserved for ..."
     content_type  = "binary/octet-stream"
     etag          = "94e32327b8007fa215f3a9edbda7f68c"
     id            = "student.alias"
