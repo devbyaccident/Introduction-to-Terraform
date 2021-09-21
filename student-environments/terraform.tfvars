@@ -11,7 +11,7 @@ students=[
   { name: "rimac", region: "us-west-2" },
   { name: "karma", region: "us-west-2" },
   { name: "volta", region: "us-west-2" },
-  { name: "nikola", region: "us-east-2" },
+  { name: "nikola", region: "us-east-1" },
   { name: "venturi", region: "us-east-1" },
   { name: "voxan", region: "us-east-1" },
   { name: "maserati", region: "us-west-2" },

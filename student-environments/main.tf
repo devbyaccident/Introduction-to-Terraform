@@ -4,15 +4,15 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "ohio"
-  region = "us-east-2"
+  alias  = "virginia"
+  region = "us-east-1"
 }
 
 resource "aws_s3_bucket" "student_buckets" {
   count         = length(var.students)
   bucket        = "devint-${var.students[count.index].name}"
   acl           = "private"
-  provider      = aws.ohio
+  provider      = aws.virginia
   force_destroy = true
 }
 

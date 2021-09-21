@@ -10,7 +10,7 @@ terraform {
   backend "s3" {}
 }
 
-# declare a resource stanza so we can create something.
+# declare a resource block so we can create something.
 resource "aws_s3_bucket_object" "user_student_alias_object" {
   bucket  = "devint-${var.student_alias}"
   key     = "student.alias"

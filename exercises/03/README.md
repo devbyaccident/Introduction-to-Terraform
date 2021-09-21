@@ -119,10 +119,10 @@ Resource actions are indicated with the following symbols:
 
 Now, let's try making a change to the s3 bucket object and allow Terraform to correct it. Let's change the content of our object.
 
-5. Find `main.tf` and modify the s3 bucket stanza to reflect the following:
+5. Find `main.tf` and modify the s3 bucket block to reflect the following:
 
  ```hcl
-# declare a resource stanza so we can create something.
+# declare a resource block so we can create something.
 resource "aws_s3_bucket_object" "user_student_alias_object" {
   bucket  = "devint-{var.student_alias}"
   key     = "student.alias"

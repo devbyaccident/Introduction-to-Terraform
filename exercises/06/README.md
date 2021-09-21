@@ -16,7 +16,7 @@ Terraform is *ALL* about modules.  Every terraform working directory is really j
 
  module "s3_bucket_01" {
      source        = "./modules/s3_bucket/"
-     region        = "us-east-2"
+     region        = "us-east-1"
      student_alias = var.student_alias
 }
 

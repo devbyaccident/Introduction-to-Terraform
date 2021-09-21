@@ -6,7 +6,7 @@ cd ./tests
 
 docker build -t terraform-workshop/terraform:latest .
 
-region="us-east-2"
+region="us-east-1"
 exercise_number="$1"
 if [ -z "$exercise_number" ]; then
   echo "first arg should be the exercise number"
