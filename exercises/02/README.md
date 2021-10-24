@@ -23,8 +23,8 @@ variable "student_alias" {
 ### What is the value of this variable?
 
 * there is no "value" parameter in the syntax for the variable object
-* variables stanzas are not meant to be inputs, but rather placeholders for input that can be references in our Terraform code
-* variable stanzas can be used this way by simply setting the `default` to the desired value
+* variables blocks are not meant to be inputs, but rather placeholders for input that can be references in our Terraform code
+* variable blocks can be used this way by simply setting the `default` to the desired value
  * but this negates the benefits of Terraform's native re-usability, instead try...
 
 
