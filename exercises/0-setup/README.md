@@ -47,8 +47,9 @@ Find complete instructions here:
 `https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started#install-terraform`
 
 ```bash
-curl -O https://releases.hashicorp.com/terraform/1.0.8/terraform_1.0.8_linux_amd64.zip
-sudo unzip terraform_1.0.8_linux_amd64.zip -d /usr/bin/
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+sudo yum -y install terraform
 ```
 
 Then test to ensure it was installed properly.
