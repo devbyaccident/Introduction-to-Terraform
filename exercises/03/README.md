@@ -34,7 +34,7 @@ Resource actions are indicated with the following symbols:
   # aws_s3_bucket_object.user_student_alias_object will be created
   + resource "aws_s3_bucket_object" "user_student_alias_object" {
       + acl                    = "private"
-      + bucket                 = "dws-di-..."
+      + bucket                 = "blackden-di-..."
       + content                = "This bucket is reserved for ..."
       + content_type           = (known after apply)
       + etag                   = (known after apply)
@@ -78,7 +78,7 @@ Resource actions are indicated with the following symbols:
   # aws_s3_bucket_object.user_student_alias_object will be created
   + resource "aws_s3_bucket_object" "user_student_alias_object" {
       + acl                    = "private"
-      + bucket                 = "dws-di-..."
+      + bucket                 = "blackden-di-..."
       + content                = "This bucket is reserved for ..."
       + content_type           = (known after apply)
       + etag                   = (known after apply)
@@ -197,7 +197,7 @@ are removed and in the order that their dependencies require.
   # aws_s3_bucket_object.user_student_alias_object will be destroyed
   - resource "aws_s3_bucket_object" "user_student_alias_object" {
       - acl           = "private" -> null
-      - bucket        = "dws-di-chucky" -> null
+      - bucket        = "blackden-di-chucky" -> null
       - content       = "This bucket is reserved for ... ****ONLY****" -> null
       - content_type  = "binary/octet-stream" -> null
       - etag          = "c7e49348083281f9dd997923fe6084b7" -> null
