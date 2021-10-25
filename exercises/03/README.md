@@ -124,7 +124,7 @@ Now, let's try making a change to the s3 bucket object and allow Terraform to co
  ```hcl
 # declare a resource block so we can create something.
 resource "aws_s3_bucket_object" "user_student_alias_object" {
-  bucket  = "devint-{var.student_alias}"
+  bucket  = "blackden-di-{var.student_alias}"
   key     = "student.alias"
   content = "This bucket is reserved for ${var.student_alias} ****ONLY****"
 }
@@ -144,7 +144,7 @@ resource "aws_s3_bucket_object" "user_student_alias_object" {
     # aws_s3_bucket_object.user_student_alias_object will be updated in-place
     ~ resource "aws_s3_bucket_object" "user_student_alias_object" {
         acl           = "private"
-        bucket        = "dws-di-..."
+        bucket        = "blackden-di-..."
       ~ content       = "This bucket is reserved for ..." -> "This bucket is reserved for ... ****ONLY****"
         content_type  = "binary/octet-stream"
         etag          = "94e32327b8007fa215f3a9edbda7f68c"
