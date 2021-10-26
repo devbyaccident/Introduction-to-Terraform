@@ -1,226 +1,246 @@
-# Exercise #7: Error Handling and Troubleshooting
+# Exercise #7: Error Handling, Troubleshooting
 
-* let's look at what the different types of errors we discussed look like
-* in each part of this exercise you'll get a feel for some common error scenarios and how to identify them
+We'll take some time to look at what the different types of errors we discussed look like. In each part of this 
+exercise you'll get a feel for some common error scenarios and how to fix or address them.
 
 ### Process Errors
 
-Process errors are really about just something problematic in way that `terraform` is run.
+So, as mentioned, process errors are really about just something problematic in way that terraform is being run. 
+So, what happens when you run `apply` before `init`? Let's run apply here before init:
 
-1. What happens when you run `apply` before `init`? Try it.
+```bash
+terraform apply
+```
 
- You should see something like:
+You should see something like:
 
- ```
- Error: Could not satisfy plugin requirements
+```Error: Could not satisfy plugin requirements
 
- Plugin reinitialization required. Please run "terraform init".
 
- Plugins are external binaries that Terraform uses to access and manipulate
- resources. The configuration provided requires plugins which can't be located,
- don't satisfy the version constraints, or are otherwise incompatible.
+Plugin reinitialization required. Please run "terraform init".
 
- Terraform automatically discovers provider requirements from your
- configuration, including providers used in child modules. To see the
- requirements and constraints from each module, run "terraform providers".
+Plugins are external binaries that Terraform uses to access and manipulate
+resources. The configuration provided requires plugins which can't be located,
+don't satisfy the version constraints, or are otherwise incompatible.
 
-  Error: provider.aws: no suitable version installed
+Terraform automatically discovers provider requirements from your
+configuration, including providers used in child modules. To see the
+requirements and constraints from each module, run "terraform providers".
+
+
+
+Error: provider.aws: no suitable version installed
   version requirements: "~> 2.0"
   versions installed: none
- ```
+```
 
-As we know, one of `init`'s jobs is to ensure that dependencies such as providers, modules, etc. are pulled
-in and available locally within your project. If we don't run `init` first, none of our other terraform operations have all the requirements they need to do their job.
+One of `init`'s jobs is to ensure that dependencies like providers, modules, etc. are pulled
+in and available locally within your project directory. If we don't run `init` first, none of
+our other terraform operations have all the requirements they need to do their job.
 
-How about another process error example?
+How about another process error example, the apply command has an argument that will tell it
+to never prompt you for input variables: `-input=[true|false]`. By default, it's true, but we
+could try running `apply` with it set to false.
 
-2. the `apply` command has an argument that tells it
-not to prompt you for input variables: `-input=[true|false]`. Let's try running `apply` with that argument set to false:
+```bash
+terraform init
+unset TF_VAR_student_alias && terraform apply -input=false
+```
 
- ```bash
- terraform init
- unset TF_VAR_student_alias && terraform apply -input=false
- ```
+Which should give you something like:
 
- ...which should give you output like:
+```
+Error: Unassigned variable
 
- ```
- Error: Unassigned variable
-
- The input variable "student_alias" has not been assigned a value.
- This is a bug in Terraform; please report it in a GitHub issue.
- ```
+The input variable "student_alias" has not been assigned a value. This is a
+bug in Terraform; please report it in a GitHub issue.
+```
 
 ### Syntactical Errors
 
-3. Modify `main.tf` to include something invalid. At the end of the file, add this:
+Let's modify the `main.tf` file here to include something invalid. At the end of the file, add this:
 
- ```hcl
- resource "aws_s3_bucket_object" "an_invalid_resource_definition" {
- ```
-
-1. Clearly a syntax problem, so run a `plan` and you should see something like:
-
- ```
- Error: Argument or block definition required
-
-     on main.tf line 17, in resource "aws_s3_bucket_object" "an_invalid_resource_definition":
-     17:
-
-     An argument or block definition is required here.
+```hcl
+resource "aws_s3_bucket_object" "an_invalid_resource_definition" {
 ```
 
- The goal is to get used to what things look like depending on the type of error encountered. These syntax
- errors happen early in the processing of Terraform commands.
+Clearly a syntax problem, so let's run
+
+```
+terraform plan
+```
+
+And you should see something like
+
+```
+Error: Argument or block definition required
+
+  on main.tf line 17, in resource "aws_s3_bucket_object" "an_invalid_resource_definition":
+  17: 
+
+An argument or block definition is required here.
+```
+
+The goal is to get used to what things look like depending on the type of error encountered. These syntax 
+errors happen early in the processing of Terraform commands.
 
 ### Validation Errors
 
-This one might not be as clear as the syntax problem above. Let's pass something invalid to the AWS provider by setting a property that doesn't jive with the `aws_s3_bucket_object` resource as defined in the AWS provider.
+This one might not be as clear as the syntax problem above. Let's pass something invalid
+to the AWS provider by setting a property that doesn't jive with the `aws_s3_bucket_object`
+resource as defined in the AWS provider. We'll modify the syntax issue above slightly, so change
+your resource definition to be:
 
-5. We'll modify the syntax issue above slightly, so change your resource definition to be:
-
- ```hcl
-  resource "aws_s3_bucket_object" "an_invalid_resource_definition" {
-     key     = "student.alias"
-     content = "This bucket is reserved for ${var.student_alias}"
-  }
- ```
-
- Nothing seemingly wrong with the above when looking at it, unless you know that the `bucket` property
-is a required one for this type of resource.
-
- So, let's see what terraform tells us about this:
-
- ```bash
- terraform validate
- ```
-
- First, here we see the `terraform validate` command at work. We could just as easily do a `terraform plan`
-and get a similar result. Two benefits of `validate`:
-
- 1. It allows validation of things without having to worry about everything we would in the normal process of plan or apply. For example, variables don't need to be set.
-
- 2. Related to the above, it's a good tool to consider for a continuous integration and/or delivery/deployment pipeline. Failing fast is an important part of any validation or testing tool.
-
- If you were to have run `terraform plan` here, you would've still been prompted for the `student_alias` value
-(assuming of course you haven't set it in otherwise).
-
- Having run `terraform validate` you should see immediately something like the following:
-
- ```
- Error: Missing required argument
-
-    on main.tf line 17, in resource "aws_s3_bucket_object" "an_invalid_resource_definition":
-    17: resource "aws_s3_bucket_object" "an_invalid_resource_definition" {
-
-  The argument "bucket" is required, but no definition was found.
+```hcl
+resource "aws_s3_bucket_object" "an_invalid_resource_definition" {
+  key     = "student.alias"
+  content = "This bucket is reserved for ${var.student_alias}"
+}
 ```
 
- So, our provider is actually giving us this. The AWS provider defines what a `aws_s3_bucket_object` should include, and what is required. The `bucket` property is required, so it's tell us we have a problem with this resource definition.
+Nothing seemingly wrong with the above when looking at it, unless you know that the `bucket` property
+is a required one on this type of resource. So, let's see what terraform tells us about this:
+
+```bash
+terraform validate
+```
+
+First, here we see the `terraform validate` command at work. We could just as easily do a `terraform plan`
+and get a similar result. Two benefits of validate:
+
+1. It allows validation of things without having to worry about everything we would in the normal process of plan or apply. For example, variables don't need to be set.
+2. Related to the above, it's a good tool to consider for a continuous integration and/or delivery/deployment pipeline. Failing fast is an important part of any validation or testing tool.
+
+If you were to have run `terraform plan` here, you would've still been prompted for the `student_alias` value
+(assuming of course you haven't set it in otherwise).
+
+Having run `terraform validate` you should see immediately something like the following:
+
+```
+Error: Missing required argument
+
+  on main.tf line 17, in resource "aws_s3_bucket_object" "an_invalid_resource_definition":
+  17: resource "aws_s3_bucket_object" "an_invalid_resource_definition" {
+
+The argument "bucket" is required, but no definition was found.
+```
+
+So, our provider is actually giving us this. The AWS provider defines what a `aws_s3_bucket_object` should include,
+and what is required. The `bucket` property is required, so it's tell us we have a problem with this resource defintion.
 
 ### Provider Errors or Passthrough
 
- And now to the most frustrating ones! These may be random, intermittent. They will be very specific to the provider and problems that happen when actually trying to do the work of setting up or maintaining your resources. Let's take a look at a simple example.
+And now to the most frustrating ones! These may be random, intermittent. They will be very specific to the provider and problems
+that happen when actually trying to do the work of setting up or maintaining your resources. Let's take a look at a simple example.
+Modify the invalid resource we've been working with here in `main.tf` to now be:
 
-6. Modify the invalid resource we've been working with here in `main.tf` to now be:
+```hcl
+resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
+  bucket  = "a-bucket-that-doesnt-exist-or-i-dont-own"
+  key     = "file"
+  content = "This will never exist"
+}
+```
 
- ```hcl
- resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
-     bucket  = "a-bucket-that-doesnt-exist-or-i-dont-own"
-     key     = "file"
-     content = "This will never exist"
- }
- ```
+Then run
 
- and run `apply`. You should see something like:
- ```
- An execution plan has been generated and is shown below.
- Resource actions are indicated with the following symbols:
-   + create
+```
+terraform apply
+```
 
- Terraform will perform the following actions:
+And you should see something like:
 
-   # aws_s3_bucket_object.a_resource_that_will_fail will be created
-   + resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
-       + acl                    = "private"
-       + bucket                 = "a-bucket-that-doesnt-exist-or-i-dont-own"
-       + content                = "This will never exist"
-       + content_type           = (known after apply)
-       + etag                   = (known after apply)
-       + id                     = (known after apply)
-       + key                    = "file"
-       + server_side_encryption = (known after apply)
-       + storage_class          = (known after apply)
-       + version_id             = (known after apply)
-     }
+```
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
 
-   # aws_s3_bucket_object.user_student_alias_object will be created
-   + resource "aws_s3_bucket_object" "user_student_alias_object" {
-       + acl                    = "private"
-       + bucket                 = "devint-..."
-       + content                = "This bucket is reserved for ..."
-       + content_type           = (known after apply)
-       + etag                   = (known after apply)
-       + id                     = (known after apply)
-       + key                    = "student.alias"
-       + server_side_encryption = (known after apply)
-       + storage_class          = (known after apply)
-       + version_id             = (known after apply)
-     }
+Terraform will perform the following actions:
 
-  Plan: 2 to add, 0 to change, 0 to destroy.
+  # aws_s3_bucket_object.a_resource_that_will_fail will be created
+  + resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
+      + acl                    = "private"
+      + bucket                 = "a-bucket-that-doesnt-exist-or-i-dont-own"
+      + content                = "This will never exist"
+      + content_type           = (known after apply)
+      + etag                   = (known after apply)
+      + id                     = (known after apply)
+      + key                    = "file"
+      + server_side_encryption = (known after apply)
+      + storage_class          = (known after apply)
+      + version_id             = (known after apply)
+    }
 
-  Do you want to perform these actions?
-    Terraform will perform the actions described above.
-    Only 'yes' will be accepted to approve.
+  # aws_s3_bucket_object.user_student_alias_object will be created
+  + resource "aws_s3_bucket_object" "user_student_alias_object" {
+      + acl                    = "private"
+      + bucket                 = "blackden-di-chucky"
+      + content                = "This bucket is reserved for chucky"
+      + content_type           = (known after apply)
+      + etag                   = (known after apply)
+      + id                     = (known after apply)
+      + key                    = "student.alias"
+      + server_side_encryption = (known after apply)
+      + storage_class          = (known after apply)
+      + version_id             = (known after apply)
+    }
 
-    Enter a value: yes
+Plan: 2 to add, 0 to change, 0 to destroy.
 
-  aws_s3_bucket_object.a_resource_that_will_fail: Creating...
-  aws_s3_bucket_object.user_student_alias_object: Creating...
-  aws_s3_bucket_object.user_student_alias_object: Creation complete after 1s [id=student.alias]
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
 
-  Error: Error putting object in S3 bucket (a-bucket-that-doesnt-exist-or-i-dont-own): NoSuchBucket: The specified bucket does not exist
+  Enter a value: yes
+
+aws_s3_bucket_object.a_resource_that_will_fail: Creating...
+aws_s3_bucket_object.user_student_alias_object: Creating...
+aws_s3_bucket_object.user_student_alias_object: Creation complete after 1s [id=student.alias]
+
+Error: Error putting object in S3 bucket (a-bucket-that-doesnt-exist-or-i-dont-own): NoSuchBucket: The specified bucket does not exist
         status code: 404, request id: 13C49158C71AE950, host id: /b1aIUG6gMMiJCI2PBVKDoBcBmutIR/vMEqEeTTojSxj400e31jcsETZCOGxRGQ031ilI1QrcWY=
 
   on main.tf line 17, in resource "aws_s3_bucket_object" "a_resource_that_will_fail":
   17: resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
 ```
 
- Where is this error actually coming from?
+Where is this error actually coming from? In this case, it's the AWS S3 API. It's trying to put an object to a bucket that 
+doesn't exist. Terraform is making the related API call to try and create the object, but AWS can't do it because the bucket 
+in which we're trying to put the object either doesn't exist or we don't own it, so we get this error passed back to us.
 
- In this case, it's the AWS S3 API. It's trying to put an object to a bucket that doesn't exist. Terraform is making the related API call to try and create the object, but AWS can't do it because the bucket in which we're trying to put the object either doesn't exist or we don't own it, so we get this error passed back to us.
+One other thing worth noting–Did everything fail?
 
- One other thing worth noting–Did everything fail?
+```
+aws_s3_bucket_object.a_resource_that_will_fail: Creating...
+aws_s3_bucket_object.user_student_alias_object: Creating...
+aws_s3_bucket_object.user_student_alias_object: Creation complete after 1s [id=student.alias]
 
- ```
- aws_s3_bucket_object.a_resource_that_will_fail: Creating...
- aws_s3_bucket_object.user_student_alias_object: Creating...
- aws_s3_bucket_object.user_student_alias_object: Creation complete after 1s [id=student.alias]
-
- Error: Error putting object in S3 bucket (a-bucket-that-doesnt-exist-or-i-dont-own): NoSuchBucket: The specified bucket does not exist
+Error: Error putting object in S3 bucket (a-bucket-that-doesnt-exist-or-i-dont-own): NoSuchBucket: The specified bucket does not exist
         status code: 404, request id: 13C49158C71AE950, host id: /b1aIUG6gMMiJCI2PBVKDoBcBmutIR/vMEqEeTTojSxj400e31jcsETZCOGxRGQ031ilI1QrcWY=
 
-    on main.tf line 17, in resource "aws_s3_bucket_object" "a_resource_that_will_fail":
-    17: resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
+  on main.tf line 17, in resource "aws_s3_bucket_object" "a_resource_that_will_fail":
+  17: resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
 ```
 
- Nope!
+Nope! Our first bucket object that was valid was created, only the second one failed. Terraform will complete 
+what it can and fail on what it can't. Sometimes the solution to failures can sometimes just be running 
+the same Terraform multiple times (e.g., if there's a network issue between where you're running Terraform and AWS).
 
- Our first bucket object that was valid was created, only the second one failed.
+### Finishing this exercise
 
- Terraform will complete what it can and fail on what it can't. Sometimes the solution to failures can sometimes just be running the same Terraform multiple times (e.g., if there's a network issue between where you're running Terraform and AWS).
+First, remove the offending HCL now in `main.tf`
 
-### Finishing up
+```
+resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
+  bucket  = "a-bucket-that-doesnt-exist-or-i-dont-own"
+  key     = "file"
+  content = "This will never exist"
+}
+```
 
-7. Remove the offending HCL now in `main.tf`
+And then
 
- ```
- resource "aws_s3_bucket_object" "a_resource_that_will_fail" {
-     bucket  = "a-bucket-that-doesnt-exist-or-i-dont-own"
-     key     = "file"
-     content = "This will never exist"
-  }
- ```
+```
+terraform destroy
+```
 
- and `destroy`.
