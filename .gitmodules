@@ -1,0 +1,3 @@
+[submodule "terraform-workshop"]
+	path = terraform-workshop
+	url = https://github.com/devbyaccident/terraform-workshop.git
